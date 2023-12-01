@@ -2,11 +2,11 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
   app.use(
-    '/api',
+    '/~w56gao/api',
     createProxyMiddleware({
       target: 'https://portalapi2.uwaterloo.ca/v2',
       "pathRewrite": {
-        "^/api" : ""
+        "^/~w56gao/api" : ""
       },
       changeOrigin: true,
     })
