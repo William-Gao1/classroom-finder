@@ -5,12 +5,12 @@ import { formatTimeRange } from '../../services/time'
 
 export default function ClassroomListPage () {
   const [timeSlots, setTimeSlots] = useState([])
-  const [buildings, setBuildings] = useState({})
+  //const [buildings, setBuildings] = useState({})
   useEffect(() => {
     const fetchDataFromPortal = async () => {
       const data = await getFreeTimeSlots()
       setTimeSlots(data.timeSlots)
-      setBuildings(data.buildings)
+      //setBuildings(data.buildings)
     }
 
     fetchDataFromPortal()
