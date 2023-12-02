@@ -38,7 +38,9 @@ const getBuildingSchedule = (openClassroomSlots) => {
 
 export const getFreeTimeSlots = async () => {
   // make an api call to portal
-  const res = await axios.get('/~w56gao/api/map/OpenClassrooms')
+
+  const portalClassroomApiUrl = process.env.NODE_ENV === "development" ? `${process.env.REACT_APP_PORTAL_API_PREFIX}/map/OpenClassrooms` : process.env.REACT_APP_PORTAL_API_PREFIX
+  const res = await axios.get(portalClassroomApiUrl)
 
   // extract building info from response
   const buildings = res.data.data.features
