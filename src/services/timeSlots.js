@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { createDateFromWeekdayAndTime } from "./time";
+
 const getBuildingSchedule = (openClassroomSlots) => {
   // openClassroomSlots from portal returns an array of Rooms, each Room has a Schedule
   // which is a list of Weekdays. Each Weekday has a list of times when the room is open
@@ -23,11 +25,11 @@ const getBuildingSchedule = (openClassroomSlots) => {
       schedule.Slots.forEach((slot) => {
         // construct the final object and append it to our list
         freeTimes.push({
-          startTime: slot.StartTime,
-          endTime: slot.EndTime,
-          weekday: weekday,
+          startTime: createDateFromWeekdayAndTime(weekday, slot.StartTime),
+          endTime: createDateFromWeekdayAndTime(weekday, slot.EndTime),
           roomNumber: roomNumber,
-          buildingCode: buildingCode
+          buildingCode: buildingCode,
+          id: `${buildingCode}-${roomNumber}-${weekday}-${slot.StartTime}-${slot.EndTime}`
         })
       })
     })
@@ -43,21 +45,29 @@ export const getFreeTimeSlots = async () => {
   const res = await axios.get(portalClassroomApiUrl)
 
   // extract building info from response
-  const buildings = res.data.data.features
+  const data = res.data.data.features
 
   // each building consists of a list of classrooms
   // portal data is weird, let's convert each portal classroom object
   // to something more reasonable
-  const transformedData = buildings.map((portalClassroom) => ({
-    coordinates: portalClassroom.geometry.coordinates, // maybe use this for cool geolocation stuff later
-    buildingCode: portalClassroom.properties.buildingCode,
-    buildingId: portalClassroom.properties.buildingId, // id probably not useful to us but always good to have
-    buildingName: portalClassroom.properties.buildingName,
+
+  // first maintain a map of buildings
+  const buildings = {}
+
+  const timeSlots = []
+  data.forEach((portalClassroom) => {
+
+    buildings[portalClassroom.properties.buildingCode] = ({
+      coordinates: portalClassroom.geometry.coordinates, // maybe use this for cool geolocation stuff later
+      buildingId: portalClassroom.properties.buildingId, // id probably not useful to us but always good to have
+      buildingName: portalClassroom.properties.buildingName,
+    })
+    
 
     // portal returns this as a string so we need to convert it to json before extracting 
     // schedule using the getBuildingSchedule function defined above
-    openClassroomSlots: getBuildingSchedule(JSON.parse(portalClassroom.properties.openClassroomSlots).data), 
-  }))
+    timeSlots.push(...getBuildingSchedule(JSON.parse(portalClassroom.properties.openClassroomSlots).data))
+  })
 
-  return transformedData
+  return { timeSlots, buildings }
 }
