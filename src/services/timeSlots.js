@@ -13,7 +13,7 @@ const getBuildingSchedule = (openClassroomSlots) => {
   // iterate over each room
   openClassroomSlots.forEach((room) => {
     // extract room metadata
-    const roomNumber = room.roomNumber
+    const roomNumber = parseInt(room.roomNumber)
     const buildingCode = room.buildingCode
 
     // iterate over each schedule
@@ -35,7 +35,7 @@ const getBuildingSchedule = (openClassroomSlots) => {
     })
   })
 
-  return freeTimes
+  return freeTimes.sort((a, b) => a.buildingCode.localeCompare(b.buildingCode) || a.roomNumber - b.roomNumber)
 }
 
 export const getFreeTimeSlots = async () => {
@@ -62,7 +62,7 @@ export const getFreeTimeSlots = async () => {
       buildingId: portalClassroom.properties.buildingId, // id probably not useful to us but always good to have
       buildingName: portalClassroom.properties.buildingName,
     })
-    
+
 
     // portal returns this as a string so we need to convert it to json before extracting 
     // schedule using the getBuildingSchedule function defined above

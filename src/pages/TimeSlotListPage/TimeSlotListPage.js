@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { getFreeTimeSlots } from '../../services/timeSlots'
 import { formatTimeRange } from '../../services/time'
 
-export default function ClassroomListPage () {
+export default function ClassroomListPage() {
   const [timeSlots, setTimeSlots] = useState([])
   //const [buildings, setBuildings] = useState({})
   useEffect(() => {
@@ -16,11 +16,11 @@ export default function ClassroomListPage () {
     fetchDataFromPortal()
   }, [])
 
-  console.log(timeSlots)
-  
+  const currentTime = Date.now();
+
   return (
     <ul>
-      {timeSlots.map((slot) => (
+      {timeSlots.filter(({ startTime, endTime }) => startTime <= currentTime && endTime > currentTime).map((slot) => (
         <li>
           {slot.buildingCode} {slot.roomNumber} {formatTimeRange(slot.startTime, slot.endTime)}
         </li>
